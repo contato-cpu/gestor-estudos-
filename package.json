@@ -4,7 +4,8 @@
   "description": "Plataforma de Estudos - Cadernos Sistematizados",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "postinstall": "prisma generate",
+    "build": "prisma generate && next build",
     "start": "next start",
     "seed": "node scripts/seed.js",
     "process-pdfs": "node scripts/process-pdfs.js"
