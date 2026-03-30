@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Deploy - Gestor de Estudos CS</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0F172A; color: #E2E8F0; line-height: 1.7; }
+
+  .header { background: linear-gradient(135deg, #1E3A5F, #2563EB); padding: 60px 20px; text-align: center; }
+  .header h1 { font-size: 2.5em; color: white; margin-bottom: 10px; }
+  .header p { color: #93C5FD; font-size: 1.1em; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+
+  .step { background: #1E293B; border-radius: 16px; padding: 30px; margin-bottom: 24px; border-left: 4px solid #2563EB; }
+  .step.active { border-left-color: #F59E0B; }
+  .step-number { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #2563EB; color: white; border-radius: 50%; font-weight: bold; margin-right: 12px; font-size: 0.9em; }
+  .step h2 { display: inline; font-size: 1.3em; color: #F8FAFC; vertical-align: middle; }
+  .step-time { display: inline-block; background: #334155; color: #94A3B8; font-size: 0.75em; padding: 2px 10px; border-radius: 12px; margin-left: 12px; vertical-align: middle; }
+  .step-content { margin-top: 20px; }
+
+  .cmd { background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 16px 20px; margin: 12px 0; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.9em; color: #22D3EE; overflow-x: auto; position: relative; }
+  .cmd::before { content: '> '; color: #F59E0B; }
+  .cmd-label { display: block; font-size: 0.75em; color: #64748B; margin-bottom: 4px; font-family: 'Segoe UI', sans-serif; }
+
+  .note { background: #1E3A5F20; border: 1px solid #2563EB40; border-radius: 10px; padding: 16px; margin: 16px 0; }
+  .note::before { content: '💡 '; }
+
+  .warning { background: #F59E0B10; border: 1px solid #F59E0B40; border-radius: 10px; padding: 16px; margin: 16px 0; }
+  .warning::before { content: '⚠️ '; }
+
+  .success { background: #22C55E10; border: 1px solid #22C55E40; border-radius: 10px; padding: 16px; margin: 16px 0; }
+  .success::before { content: '✅ '; }
+
+  a { color: #60A5FA; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .link-btn { display: inline-block; background: #2563EB; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; margin: 8px 4px; text-decoration: none; }
+  .link-btn:hover { background: #1D4ED8; text-decoration: none; }
+
+  .architecture { background: #1E293B; border-radius: 16px; padding: 30px; margin-bottom: 24px; }
+  .architecture h2 { color: #F8FAFC; margin-bottom: 20px; text-align: center; }
+  .arch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .arch-box { background: #0F172A; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #334155; }
+  .arch-box .icon { font-size: 2em; margin-bottom: 8px; }
+  .arch-box h3 { color: #F8FAFC; font-size: 1em; margin-bottom: 4px; }
+  .arch-box p { color: #94A3B8; font-size: 0.8em; }
+  .arch-arrow { display: flex; align-items: center; justify-content: center; color: #F59E0B; font-size: 1.5em; }
+
+  .env-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .env-table th { background: #334155; padding: 10px 16px; text-align: left; font-size: 0.85em; color: #94A3B8; }
+  .env-table td { padding: 10px 16px; border-bottom: 1px solid #334155; font-size: 0.9em; }
+  .env-table td:first-child { font-family: monospace; color: #22D3EE; }
+
+  .cost-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .cost-table th { background: #334155; padding: 10px 16px; text-align: left; font-size: 0.85em; color: #94A3B8; }
+  .cost-table td { padding: 10px 16px; border-bottom: 1px solid #334155; }
+  .cost-free { color: #22C55E; font-weight: 600; }
+  .cost-paid { color: #F59E0B; }
+
+  .progress-bar { display: flex; gap: 4px; margin: 30px 0; }
+  .progress-dot { flex: 1; height: 6px; border-radius: 3px; background: #334155; }
+  .progress-dot.done { background: #22C55E; }
+  .progress-dot.current { background: #F59E0B; }
+
+  .footer { text-align: center; padding: 40px; color: #64748B; font-size: 0.85em; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚀 Guia de Deploy</h1>
+  <p>Gestor de Estudos — Cadernos Sistematizados</p>
+  <p style="margin-top:8px; font-size:0.85em; color:#60A5FA">De zero ao app online em 30 minutos</p>
+</div>
+
+<div class="container">
+
+  <!-- Arquitetura -->
+  <div class="architecture">
+    <h2>🏗️ Arquitetura da Plataforma</h2>
+    <div class="arch-grid">
+      <div class="arch-box">
+        <div class="icon">⚛️</div>
+        <h3>Frontend</h3>
+        <p>Next.js + React + Tailwind</p>
+        <p style="color:#22C55E; margin-top:4px">Vercel (gratuito)</p>
+      </div>
+      <div class="arch-box">
+        <div class="icon">🗄️</div>
+        <h3>Banco de Dados</h3>
+        <p>PostgreSQL + Prisma ORM</p>
+        <p style="color:#22C55E; margin-top:4px">Neon (gratuito)</p>
+      </div>
+      <div class="arch-box">
+        <div class="icon">🤖</div>
+        <h3>IA (Questões)</h3>
+        <p>GPT-4o-mini via API</p>
+        <p style="color:#F59E0B; margin-top:4px">~$15 p/ 18k questões</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custos -->
+  <div class="step">
+    <span class="step-number">💰</span>
+    <h2>Custos Estimados</h2>
+    <div class="step-content">
+      <table class="cost-table">
+        <thead><tr><th>Serviço</th><th>Plano</th><th>Custo</th></tr></thead>
+        <tbody>
+          <tr><td>Vercel (hospedagem)</td><td>Hobby (gratuito)</td><td class="cost-free">$0/mês</td></tr>
+          <tr><td>Neon (banco de dados)</td><td>Free Tier (0.5 GB)</td><td class="cost-free">$0/mês</td></tr>
+          <tr><td>OpenAI API</td><td>GPT-4o-mini</td><td class="cost-paid">~$15 (uma vez)</td></tr>
+          <tr><td>Domínio .com.br</td><td>Registro.br</td><td class="cost-paid">R$ 40/ano</td></tr>
+          <tr><td><strong>Total inicial</strong></td><td></td><td class="cost-paid"><strong>~R$ 120</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="note">Com 30.000 alunos, quando escalar, o plano Pro da Vercel ($20/mês) + Neon Pro ($19/mês) serão necessários. Mas para começar, tudo gratuito!</div>
+    </div>
+  </div>
+
+  <!-- Pré-requisitos -->
+  <div class="step">
+    <span class="step-number">0</span>
+    <h2>Pré-requisitos</h2>
+    <span class="step-time">5 min</span>
+    <div class="step-content">
+      <p>Você precisa ter instalado no seu computador:</p>
+      <p style="margin: 12px 0;">
+        <a href="https://nodejs.org/pt" class="link-btn">📦 Node.js (v18+)</a>
+        <a href="https://git-scm.com/download/win" class="link-btn">🔧 Git</a>
+      </p>
+      <p style="margin-top:12px">Para verificar se já tem:</p>
+      <div class="cmd">node --version</div>
+      <div class="cmd">git --version</div>
+      <div class="note">Você já instalou o Git e Node.js na sessão anterior, então deve estar tudo pronto!</div>
+    </div>
+  </div>
+
+  <!-- PASSO 1: Banco de Dados -->
+  <div class="step active">
+    <span class="step-number">1</span>
+    <h2>Criar Banco de Dados (Neon)</h2>
+    <span class="step-time">3 min</span>
+    <div class="step-content">
+      <p><a href="https://neon.tech" class="link-btn">🌐 Abrir neon.tech</a></p>
+      <ol style="margin: 16px 0; padding-left: 20px; list-style: decimal;">
+        <li style="margin-bottom:8px">Crie uma conta gratuita (pode usar Google/GitHub)</li>
+        <li style="margin-bottom:8px">Clique em <strong>"Create a project"</strong></li>
+        <li style="margin-bottom:8px">Nome do projeto: <code style="color:#22D3EE">gestor-estudos-cs</code></li>
+        <li style="margin-bottom:8px">Região: <strong>São Paulo (sa-east-1)</strong></li>
+        <li style="margin-bottom:8px">Clique em <strong>"Create project"</strong></li>
+        <li style="margin-bottom:8px">Copie a <strong>Connection String</strong> que aparece (começa com <code style="color:#22D3EE">postgresql://...</code>)</li>
+      </ol>
+      <div class="warning">Guarde essa Connection String! Você vai usar como DATABASE_URL no próximo passo.</div>
+    </div>
+  </div>
+
+  <!-- PASSO 2: OpenAI API Key -->
+  <div class="step">
+    <span class="step-number">2</span>
+    <h2>Obter API Key da OpenAI</h2>
+    <span class="step-time">2 min</span>
+    <div class="step-content">
+      <p><a href="https://platform.openai.com/api-keys" class="link-btn">🔑 Abrir OpenAI API</a></p>
+      <ol style="margin: 16px 0; padding-left: 20px; list-style: decimal;">
+        <li style="margin-bottom:8px">Faça login (ou crie conta)</li>
+        <li style="margin-bottom:8px">Clique em <strong>"Create new secret key"</strong></li>
+        <li style="margin-bottom:8px">Nome: <code style="color:#22D3EE">gestor-cs</code></li>
+        <li style="margin-bottom:8px">Copie a chave (começa com <code style="color:#22D3EE">sk-...</code>)</li>
+        <li style="margin-bottom:8px">Adicione crédito: <a href="https://platform.openai.com/settings/organization/billing/overview">Billing → Add credit</a> ($15 é suficiente para gerar todas as 18.000 questões)</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- PASSO 3: Configurar Projeto -->
+  <div class="step">
+    <span class="step-number">3</span>
+    <h2>Configurar o Projeto</h2>
+    <span class="step-time">5 min</span>
+    <div class="step-content">
+      <p>Abra o PowerShell e navegue até a pasta do projeto:</p>
+      <div class="cmd-label">Navegar até o projeto:</div>
+      <div class="cmd">cd "$HOME\OneDrive\Desktop\cadernos 2026 agente\gestor-estudos-cs"</div>
+
+      <div class="cmd-label">Instalar dependências:</div>
+      <div class="cmd">npm install</div>
+
+      <div class="cmd-label">Criar arquivo .env (cole os valores reais):</div>
+      <div class="cmd">Copy-Item .env.example .env</div>
+
+      <p style="margin-top:16px">Abra o arquivo <strong>.env</strong> com o Bloco de Notas e preencha:</p>
+      <table class="env-table">
+        <thead><tr><th>Variável</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>DATABASE_URL</td><td>A connection string do Neon (passo 1)</td></tr>
+          <tr><td>JWT_SECRET</td><td>Uma frase secreta qualquer (ex: "minha-plataforma-cs-2026")</td></tr>
+          <tr><td>OPENAI_API_KEY</td><td>A chave sk-... da OpenAI (passo 2)</td></tr>
+          <tr><td>NEXT_PUBLIC_APP_URL</td><td>http://localhost:3000 (mude depois para seu domínio)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PASSO 4: Criar Tabelas -->
+  <div class="step">
+    <span class="step-number">4</span>
+    <h2>Criar Tabelas no Banco</h2>
+    <span class="step-time">1 min</span>
+    <div class="step-content">
+      <div class="cmd-label">Criar tabelas no PostgreSQL:</div>
+      <div class="cmd">npx prisma db push</div>
+
+      <div class="cmd-label">Popular com as 29 disciplinas e editais:</div>
+      <div class="cmd">npm run seed</div>
+
+      <div class="success">Deve aparecer: "✅ 29 disciplinas criadas" e "✅ TJ-SP, TJ-MG, MP-SP"</div>
+    </div>
+  </div>
+
+  <!-- PASSO 5: Testar Local -->
+  <div class="step">
+    <span class="step-number">5</span>
+    <h2>Testar Localmente</h2>
+    <span class="step-time">2 min</span>
+    <div class="step-content">
+      <div class="cmd-label">Iniciar o servidor local:</div>
+      <div class="cmd">npm run dev</div>
+
+      <p style="margin-top:12px">Abra no navegador: <a href="http://localhost:3000" style="font-size:1.2em; font-weight:bold">http://localhost:3000</a></p>
+
+      <div class="success">Você verá a tela de login! Crie uma conta e explore o Dashboard, Questões, Ranking, Editais e Desempenho.</div>
+    </div>
+  </div>
+
+  <!-- PASSO 6: Gerar Questões -->
+  <div class="step">
+    <span class="step-number">6</span>
+    <h2>Gerar 18.000 Questões com IA</h2>
+    <span class="step-time">~2 horas (automático)</span>
+    <div class="step-content">
+      <p>Este script lê todos os seus 109 PDFs e gera questões automaticamente:</p>
+
+      <div class="cmd-label">Processar todos os PDFs da pasta pai:</div>
+      <div class="cmd">npm run process-pdfs -- ".."</div>
+
+      <p style="margin-top:12px">O script vai:</p>
+      <ol style="padding-left:20px; list-style:decimal; margin:12px 0;">
+        <li style="margin-bottom:4px">Encontrar os 109 PDFs nas 29 pastas de disciplinas</li>
+        <li style="margin-bottom:4px">Extrair texto página por página</li>
+        <li style="margin-bottom:4px">Enviar para GPT-4o-mini gerar questões</li>
+        <li style="margin-bottom:4px">Salvar no banco com tópico, dificuldade, explicação e referência à página</li>
+      </ol>
+
+      <div class="warning">Esse processo leva ~2 horas e custa ~$15 na API da OpenAI. Você pode parar e continuar depois — ele pula páginas já processadas.</div>
+
+      <div class="note">Estimativa: ~750 questões por caderno × 24 cadernos = ~18.000 questões no total!</div>
+    </div>
+  </div>
+
+  <!-- PASSO 7: Deploy Vercel -->
+  <div class="step">
+    <span class="step-number">7</span>
+    <h2>Publicar na Vercel (Deploy)</h2>
+    <span class="step-time">5 min</span>
+    <div class="step-content">
+      <p><strong>Opção A — Via GitHub (recomendado):</strong></p>
+      <div class="cmd-label">Inicializar git e criar repo:</div>
+      <div class="cmd">git init && git add . && git commit -m "Gestor de Estudos CS v1.0"</div>
+      <div class="cmd">gh repo create gestor-estudos-cs --private --source=. --push</div>
+
+      <p style="margin-top:16px"><a href="https://vercel.com/new" class="link-btn">🚀 Abrir Vercel</a></p>
+      <ol style="margin: 12px 0; padding-left: 20px; list-style: decimal;">
+        <li style="margin-bottom:8px">Conecte sua conta GitHub</li>
+        <li style="margin-bottom:8px">Selecione o repositório <code style="color:#22D3EE">gestor-estudos-cs</code></li>
+        <li style="margin-bottom:8px">Nas <strong>Environment Variables</strong>, adicione: DATABASE_URL, JWT_SECRET, OPENAI_API_KEY</li>
+        <li style="margin-bottom:8px">Clique <strong>Deploy</strong></li>
+      </ol>
+
+      <div class="success">Em ~2 minutos você terá um link tipo: <strong>gestor-estudos-cs.vercel.app</strong></div>
+
+      <p style="margin-top:16px"><strong>Opção B — Via CLI:</strong></p>
+      <div class="cmd">npm i -g vercel</div>
+      <div class="cmd">vercel --prod</div>
+    </div>
+  </div>
+
+  <!-- PASSO 8: Domínio -->
+  <div class="step">
+    <span class="step-number">8</span>
+    <h2>Configurar Domínio Personalizado</h2>
+    <span class="step-time">10 min</span>
+    <div class="step-content">
+      <p>Para ter um endereço como <strong>estudos.cadernossistematizado.com</strong>:</p>
+      <ol style="margin: 12px 0; padding-left: 20px; list-style: decimal;">
+        <li style="margin-bottom:8px">Na Vercel, vá em <strong>Settings → Domains</strong></li>
+        <li style="margin-bottom:8px">Adicione: <code style="color:#22D3EE">estudos.cadernossistematizado.com</code></li>
+        <li style="margin-bottom:8px">No seu provedor de DNS, crie um CNAME apontando para <code style="color:#22D3EE">cname.vercel-dns.com</code></li>
+        <li style="margin-bottom:8px">Aguarde propagação (até 48h, geralmente 5 min)</li>
+      </ol>
+      <div class="success">HTTPS é automático na Vercel! Seu site já estará com certificado SSL.</div>
+    </div>
+  </div>
+
+  <!-- Resumo -->
+  <div class="architecture" style="border: 2px solid #22C55E40;">
+    <h2 style="color: #22C55E;">✅ Resumo — O que você terá</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+      <div style="background: #0F172A; padding: 16px; border-radius: 12px;">
+        <strong style="color: #60A5FA;">📱 Web App Completo</strong>
+        <p style="font-size: 0.85em; color: #94A3B8; margin-top: 4px;">Dashboard, Questões, Ranking, Editais, Desempenho — tudo responsivo</p>
+      </div>
+      <div style="background: #0F172A; padding: 16px; border-radius: 12px;">
+        <strong style="color: #60A5FA;">🤖 18.000 Questões IA</strong>
+        <p style="font-size: 0.85em; color: #94A3B8; margin-top: 4px;">Geradas a partir dos seus 109 PDFs, com explicação e referência à página</p>
+      </div>
+      <div style="background: #0F172A; padding: 16px; border-radius: 12px;">
+        <strong style="color: #60A5FA;">🏆 Ranking Nacional</strong>
+        <p style="font-size: 0.85em; color: #94A3B8; margin-top: 4px;">30.000 alunos competindo por posição, com pontuação por acertos</p>
+      </div>
+      <div style="background: #0F172A; padding: 16px; border-radius: 12px;">
+        <strong style="color: #60A5FA;">📋 Editais Verticalizados</strong>
+        <p style="font-size: 0.85em; color: #94A3B8; margin-top: 4px;">TJ-SP, TJ-MG, MP-SP com peso por disciplina e progresso individual</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comandos Rápidos -->
+  <div class="step">
+    <span class="step-number">⚡</span>
+    <h2>Referência Rápida de Comandos</h2>
+    <div class="step-content">
+      <div class="cmd-label">Rodar localmente:</div>
+      <div class="cmd">npm run dev</div>
+
+      <div class="cmd-label">Processar PDFs:</div>
+      <div class="cmd">npm run process-pdfs -- ".."</div>
+
+      <div class="cmd-label">Popular banco com disciplinas:</div>
+      <div class="cmd">npm run seed</div>
+
+      <div class="cmd-label">Visualizar banco:</div>
+      <div class="cmd">npx prisma studio</div>
+
+      <div class="cmd-label">Deploy para produção:</div>
+      <div class="cmd">git add . && git commit -m "update" && git push</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>📚 Cadernos Sistematizados — Gestor de Estudos v1.0</p>
+  <p style="margin-top:4px">Criado com IA em 30/03/2026</p>
+</div>
+
+</body>
+</html>

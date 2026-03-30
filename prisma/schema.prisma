@@ -1,0 +1,238 @@
+// ============================================
+// GESTOR DE ESTUDOS CS - SCHEMA DO BANCO
+// Cadernos Sistematizados - PostgreSQL
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Usuários (Alunos) ─────────────────────
+model User {
+  id            String    @id @default(cuid())
+  nome          String
+  email         String    @unique
+  senha         String
+  avatar        String?
+  plano         Plano     @default(FREE)
+  pontos        Int       @default(0)
+  sequencia     Int       @default(0)  // dias seguidos estudando
+  maxSequencia  Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  respostas     Resposta[]
+  progresso     Progresso[]
+  sessoes       SessaoEstudo[]
+
+  @@map("users")
+}
+
+enum Plano {
+  FREE
+  PRO
+  PREMIUM
+}
+
+// ─── Disciplinas ────────────────────────────
+model Disciplina {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  slug      String   @unique
+  icone     String   @default("📚")
+  cor       String   @default("#3B82F6")
+  ordem     Int      @default(0)
+  ativa     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  cadernos  Caderno[]
+  questoes  Questao[]
+  topicos   Topico[]
+  editais   EditalDisciplina[]
+
+  @@map("disciplinas")
+}
+
+// ─── Cadernos (PDFs originais) ──────────────
+model Caderno {
+  id            String   @id @default(cuid())
+  titulo        String
+  arquivo       String   // caminho do PDF
+  totalPaginas  Int      @default(0)
+  processado    Boolean  @default(false)
+  disciplinaId  String
+  createdAt     DateTime @default(now())
+
+  disciplina    Disciplina @relation(fields: [disciplinaId], references: [id])
+  questoes      Questao[]
+  conteudos     ConteudoExtraido[]
+
+  @@map("cadernos")
+}
+
+// ─── Conteúdo Extraído dos PDFs ─────────────
+model ConteudoExtraido {
+  id          String   @id @default(cuid())
+  cadernoId   String
+  pagina      Int
+  texto       String   @db.Text
+  processado  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  caderno     Caderno  @relation(fields: [cadernoId], references: [id])
+
+  @@unique([cadernoId, pagina])
+  @@map("conteudo_extraido")
+}
+
+// ─── Tópicos ────────────────────────────────
+model Topico {
+  id            String   @id @default(cuid())
+  nome          String
+  slug          String
+  disciplinaId  String
+  createdAt     DateTime @default(now())
+
+  disciplina    Disciplina @relation(fields: [disciplinaId], references: [id])
+  questoes      Questao[]
+  editaisTopicos EditalTopico[]
+
+  @@unique([slug, disciplinaId])
+  @@map("topicos")
+}
+
+// ─── Questões (geradas por IA) ──────────────
+model Questao {
+  id              String       @id @default(cuid())
+  enunciado       String       @db.Text
+  alternativas    Json         // [{letra: "A", texto: "...", correta: true}]
+  explicacao      String       @db.Text
+  dificuldade     Dificuldade  @default(MEDIO)
+  disciplinaId    String
+  topicoId        String?
+  cadernoId       String?
+  paginaRef       Int?         // página do caderno de referência
+  fonte           FonteQuestao @default(IA_GERADA)
+  ativa           Boolean      @default(true)
+  vezesRespondida Int          @default(0)
+  vezesAcertada   Int          @default(0)
+  createdAt       DateTime     @default(now())
+
+  disciplina      Disciplina @relation(fields: [disciplinaId], references: [id])
+  topico          Topico?    @relation(fields: [topicoId], references: [id])
+  caderno         Caderno?   @relation(fields: [cadernoId], references: [id])
+  respostas       Resposta[]
+
+  @@index([disciplinaId])
+  @@index([dificuldade])
+  @@map("questoes")
+}
+
+enum Dificuldade {
+  FACIL
+  MEDIO
+  DIFICIL
+}
+
+enum FonteQuestao {
+  IA_GERADA
+  BANCA_REAL
+  PROFESSOR
+}
+
+// ─── Respostas dos Alunos ───────────────────
+model Resposta {
+  id          String   @id @default(cuid())
+  userId      String
+  questaoId   String
+  letraEscolhida String
+  acertou     Boolean
+  tempoMs     Int?     // tempo para responder em ms
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  questao     Questao  @relation(fields: [questaoId], references: [id])
+
+  @@index([userId])
+  @@index([questaoId])
+  @@map("respostas")
+}
+
+// ─── Progresso por Disciplina ───────────────
+model Progresso {
+  id              String   @id @default(cuid())
+  userId          String
+  disciplinaSlug  String
+  totalRespondidas Int     @default(0)
+  totalAcertos    Int      @default(0)
+  ultimaAtividade DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, disciplinaSlug])
+  @@map("progresso")
+}
+
+// ─── Sessões de Estudo ──────────────────────
+model SessaoEstudo {
+  id          String   @id @default(cuid())
+  userId      String
+  inicio      DateTime @default(now())
+  fim         DateTime?
+  questoes    Int      @default(0)
+  acertos     Int      @default(0)
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("sessoes_estudo")
+}
+
+// ─── Editais ────────────────────────────────
+model Edital {
+  id          String   @id @default(cuid())
+  nome        String   // ex: "TJ-SP 2024"
+  orgao       String   // ex: "TJ-SP"
+  ano         Int
+  cargo       String   @default("Juiz Substituto")
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  disciplinas EditalDisciplina[]
+
+  @@map("editais")
+}
+
+model EditalDisciplina {
+  id            String   @id @default(cuid())
+  editalId      String
+  disciplinaId  String
+  peso          Float    @default(1.0)
+  questoesPrevistas Int  @default(0)
+
+  edital        Edital      @relation(fields: [editalId], references: [id])
+  disciplina    Disciplina  @relation(fields: [disciplinaId], references: [id])
+  topicos       EditalTopico[]
+
+  @@unique([editalId, disciplinaId])
+  @@map("edital_disciplinas")
+}
+
+model EditalTopico {
+  id                  String   @id @default(cuid())
+  editalDisciplinaId  String
+  topicoId            String?
+  descricao           String   // texto do edital
+  cobrado             Boolean  @default(true)
+
+  editalDisciplina    EditalDisciplina @relation(fields: [editalDisciplinaId], references: [id])
+  topico              Topico?          @relation(fields: [topicoId], references: [id])
+
+  @@map("edital_topicos")
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Próximos Passos - Gestor de Estudos CS</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0F172A; color: #E2E8F0; line-height: 1.8; }
+
+  .header { background: linear-gradient(135deg, #059669, #10B981); padding: 50px 20px; text-align: center; }
+  .header h1 { font-size: 2.2em; color: white; margin-bottom: 8px; }
+  .header p { color: #D1FAE5; font-size: 1.1em; }
+  .header .badge { display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85em; margin-top: 12px; }
+
+  .container { max-width: 750px; margin: 0 auto; padding: 40px 20px; }
+
+  .done-box { background: #064E3B; border: 1px solid #10B981; border-radius: 14px; padding: 24px; margin-bottom: 30px; }
+  .done-box h3 { color: #34D399; margin-bottom: 12px; font-size: 1.1em; }
+  .done-item { padding: 6px 0; color: #A7F3D0; }
+  .done-item::before { content: '✅ '; }
+
+  .step { background: #1E293B; border-radius: 14px; padding: 28px; margin-bottom: 20px; border-left: 4px solid #F59E0B; }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #F59E0B; color: #0F172A; border-radius: 50%; font-weight: bold; margin-right: 10px; font-size: 0.85em; }
+  .step h2 { display: inline; font-size: 1.2em; color: #F8FAFC; vertical-align: middle; }
+
+  .cmd { background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.9em; color: #22D3EE; overflow-x: auto; cursor: pointer; transition: border-color 0.2s; }
+  .cmd:hover { border-color: #22D3EE; }
+  .cmd::before { content: '> '; color: #F59E0B; }
+  .cmd-label { display: block; font-size: 0.75em; color: #64748B; margin-bottom: 4px; font-family: 'Segoe UI', sans-serif; }
+
+  .note { background: #1E3A5F30; border: 1px solid #2563EB40; border-radius: 10px; padding: 14px; margin: 14px 0; font-size: 0.92em; }
+  .note::before { content: '💡 '; }
+
+  .warn { background: #78350F30; border: 1px solid #F59E0B40; border-radius: 10px; padding: 14px; margin: 14px 0; font-size: 0.92em; }
+  .warn::before { content: '⚠️ '; }
+
+  .success { background: #064E3B30; border: 1px solid #10B98140; border-radius: 10px; padding: 14px; margin: 14px 0; font-size: 0.92em; }
+  .success::before { content: '🎉 '; }
+
+  p { margin: 10px 0; }
+  a { color: #60A5FA; }
+  code { background: #334155; padding: 2px 6px; border-radius: 4px; font-family: 'Cascadia Code', monospace; font-size: 0.9em; color: #F59E0B; }
+
+  .footer { text-align: center; padding: 30px; color: #475569; font-size: 0.85em; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚀 Próximos Passos</h1>
+  <p>Gestor de Estudos - Cadernos Sistematizados</p>
+  <div class="badge">Banco Neon ✅ configurado | .env ✅ pronto</div>
+</div>
+
+<div class="container">
+
+  <div class="done-box">
+    <h3>O que já está pronto:</h3>
+    <div class="done-item">Projeto Next.js criado (30 arquivos, 5 telas)</div>
+    <div class="done-item">Banco PostgreSQL no Neon (São Paulo)</div>
+    <div class="done-item">Arquivo .env configurado com connection string</div>
+    <div class="done-item">Schema do banco definido (12 tabelas)</div>
+    <div class="done-item">Seed de disciplinas e editais preparado</div>
+  </div>
+
+  <!-- PASSO 1 -->
+  <div class="step">
+    <span class="step-num">1</span>
+    <h2>Instalar Node.js (se ainda não tem)</h2>
+    <p>Baixe e instale o Node.js versão LTS:</p>
+    <p><a href="https://nodejs.org/pt" target="_blank">https://nodejs.org/pt</a> → Botão verde "LTS"</p>
+    <div class="note">Depois de instalar, feche e abra o terminal (PowerShell ou CMD) novamente.</div>
+  </div>
+
+  <!-- PASSO 2 -->
+  <div class="step">
+    <span class="step-num">2</span>
+    <h2>Abrir o terminal na pasta do projeto</h2>
+    <p>Abra o <strong>PowerShell</strong> ou <strong>CMD</strong> e navegue até a pasta do projeto:</p>
+    <div class="cmd-label">Navegar até o projeto:</div>
+    <div class="cmd">cd "C:\caminho\para\cadernos 2026 agente\gestor-estudos-cs"</div>
+    <div class="note">Substitua "C:\caminho\para\" pelo caminho real da sua pasta. Você pode arrastar a pasta para o terminal para colar o caminho.</div>
+  </div>
+
+  <!-- PASSO 3 -->
+  <div class="step">
+    <span class="step-num">3</span>
+    <h2>Instalar dependências</h2>
+    <div class="warn">Se existir uma pasta <code>node_modules</code> dentro de gestor-estudos-cs, delete ela primeiro (clique direito → Excluir no Explorador de Arquivos).</div>
+    <div class="cmd-label">Instalar pacotes do projeto:</div>
+    <div class="cmd">npm install</div>
+    <p>Aguarde finalizar (pode levar 1-2 minutos). Vai aparecer "added X packages".</p>
+  </div>
+
+  <!-- PASSO 4 -->
+  <div class="step">
+    <span class="step-num">4</span>
+    <h2>Criar tabelas no banco de dados</h2>
+    <p>Este comando lê o schema e cria todas as 12 tabelas no Neon:</p>
+    <div class="cmd-label">Criar tabelas:</div>
+    <div class="cmd">npx prisma db push</div>
+    <p>Deve aparecer: <code>Your database is now in sync with your Prisma schema.</code></p>
+    <div class="note">Se aparecer "Do you want to continue?", digite <code>y</code> e Enter.</div>
+  </div>
+
+  <!-- PASSO 5 -->
+  <div class="step">
+    <span class="step-num">5</span>
+    <h2>Popular dados iniciais (seed)</h2>
+    <p>Cadastra as 29 disciplinas e 3 editais no banco:</p>
+    <div class="cmd-label">Rodar seed:</div>
+    <div class="cmd">npm run seed</div>
+    <p>Deve aparecer: <code>✅ 29 disciplinas cadastradas</code> e <code>✅ 3 editais cadastrados</code></p>
+  </div>
+
+  <!-- PASSO 6 -->
+  <div class="step">
+    <span class="step-num">6</span>
+    <h2>Testar localmente</h2>
+    <div class="cmd-label">Iniciar o servidor de desenvolvimento:</div>
+    <div class="cmd">npm run dev</div>
+    <p>Abra o navegador em: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+    <div class="success">Se tudo correu bem, você verá a tela de login do Gestor de Estudos! 🎓</div>
+    <p>Para parar o servidor: <code>Ctrl + C</code> no terminal.</p>
+  </div>
+
+  <!-- PASSO 7 - FUTURO -->
+  <div class="step" style="border-left-color: #6366F1; opacity: 0.8;">
+    <span class="step-num" style="background: #6366F1;">7</span>
+    <h2>Deploy no Vercel (depois)</h2>
+    <p>Quando estiver satisfeita com o teste local:</p>
+    <div class="cmd-label">Instalar Git (se não tem):</div>
+    <div class="cmd">winget install Git.Git</div>
+    <div class="cmd-label">Inicializar repositório:</div>
+    <div class="cmd">git init && git add . && git commit -m "Primeiro commit - Gestor de Estudos CS"</div>
+    <p>Depois: criar repositório no GitHub, fazer push, e conectar ao Vercel.</p>
+    <div class="note">Podemos fazer essa parte juntos quando você quiser!</div>
+  </div>
+
+  <!-- PASSO 8 - FUTURO -->
+  <div class="step" style="border-left-color: #6366F1; opacity: 0.8;">
+    <span class="step-num" style="background: #6366F1;">8</span>
+    <h2>Processar PDFs com IA (depois)</h2>
+    <p>Para gerar as ~18.000 questões a partir dos seus 109 PDFs:</p>
+    <div class="cmd-label">Adicionar chave da OpenAI no .env:</div>
+    <div class="cmd">OPENAI_API_KEY="sk-sua-chave-aqui"</div>
+    <div class="cmd-label">Processar PDFs:</div>
+    <div class="cmd">npm run process-pdfs -- "C:\caminho\para\seus\pdfs"</div>
+    <div class="warn">Precisa de uma chave da OpenAI (custa ~R$120 para processar todos os 109 PDFs). Podemos configurar isso juntos depois.</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Cadernos Sistematizados © 2026 | Guia gerado pelo Claude
+</div>
+
+</body>
+</html>
