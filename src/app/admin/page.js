@@ -31,8 +31,12 @@ export default function AdminPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/admin');
+      if (response.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
       if (response.status === 403) {
-        setError('Acesso restrito ao administrador');
+        setError('Acesso restrito ao administrador. Faca login com contato@cadernossistematizado.com');
         return;
       }
       if (!response.ok) throw new Error('Erro ao carregar dados');

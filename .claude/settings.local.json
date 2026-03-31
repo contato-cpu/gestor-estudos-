@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:12434/engines/llama.cpp/v1/models)",
+      "Bash(curl -s http://localhost:12434/v1/models)",
+      "Bash(docker ps:*)"
+    ]
+  }
+}

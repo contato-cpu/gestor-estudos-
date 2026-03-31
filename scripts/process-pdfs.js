@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // ============================================
-// PIPELINE DE PROCESSAMENTO DE PDFs - OLLAMA LOCAL
+// PIPELINE DE PROCESSAMENTO DE PDFs - OLLAMA (DOCKER)
 // Cadernos Sistematizados → Questões por IA
-// Usando Llama3 via Ollama (SEM LIMITES)
+// Usando llama3.1:8b via Ollama no Docker
 // ============================================
 // Uso: node scripts/process-pdfs.js [caminho-da-pasta-pdfs]
 
@@ -65,16 +65,16 @@ const PASTA_DISCIPLINA = {
   'MP': 'mp-atribuicoes',
 };
 
-// Config para maximizar questões com Ollama local
+// Config para Ollama no Docker (porta 11434)
 const CONFIG = {
-  MODELO: 'llama3',
+  MODELO: 'llama3.1:8b',
   OLLAMA_URL: 'http://localhost:11434',
-  TAMANHO_BLOCO: 3000,        // Blocos maiores = menos chamadas = mais rápido
+  TAMANHO_BLOCO: 3000,
   MIN_CHARS_BLOCO: 150,
   MIN_CHARS_PDF: 300,
   PULAR_INICIO_PCT: 0.03,
   MAX_RETRIES: 3,
-  DELAY_ENTRE_CHAMADAS: 500,  // Apenas 0.5s - SEM RATE LIMIT local!
+  DELAY_ENTRE_CHAMADAS: 500, // local, sem rate limit
   QUESTOES_POR_BLOCO: 5,
 };
 
@@ -97,23 +97,23 @@ async function main() {
   try {
     const check = await fetch(`${CONFIG.OLLAMA_URL}/api/tags`);
     const models = await check.json();
-    const temModelo = models.models?.some(m => m.name.startsWith(CONFIG.MODELO));
+    const temModelo = models.models?.some(m => m.name.startsWith(CONFIG.MODELO.split(':')[0]));
     if (!temModelo) {
       console.error(`❌ Modelo "${CONFIG.MODELO}" não encontrado no Ollama.`);
-      console.error(`   Rode: ollama pull ${CONFIG.MODELO}`);
+      console.error(`   Rode: docker exec ollama ollama pull ${CONFIG.MODELO}`);
       process.exit(1);
     }
     console.log(`✅ Ollama conectado | Modelo: ${CONFIG.MODELO}\n`);
   } catch (err) {
-    console.error('❌ Ollama não está rodando! Abra o Ollama primeiro.');
+    console.error('❌ Ollama não está acessível em', CONFIG.OLLAMA_URL);
     console.error('   Erro:', err.message);
     process.exit(1);
   }
 
   console.log('╔════════════════════════════════════════════════╗');
-  console.log('║  📚 PIPELINE MÁXIMO DE QUESTÕES               ║');
+  console.log('║  📚 PIPELINE DE QUESTÕES - OLLAMA DOCKER      ║');
   console.log('║  Cadernos Sistematizados → Questões IA         ║');
-  console.log(`║  🤖 ${CONFIG.MODELO} via Ollama LOCAL | SEM LIMITES    ║`);
+  console.log(`║  🤖 ${CONFIG.MODELO} | SEM LIMITES            ║`);
   console.log('╚════════════════════════════════════════════════╝');
   console.log(`\n📂 Pasta: ${path.resolve(pastaBase)}\n`);
 
@@ -444,8 +444,8 @@ REGRAS OBRIGATÓRIAS:
 CONTEÚDO (página ~${pagina}):
 ${texto.substring(0, 2500)}
 
-RESPONDA SOMENTE com JSON válido. Nenhum texto antes ou depois. Apenas o array JSON:
-[{"enunciado":"pergunta aqui","topico":"tópico específico","dificuldade":"MEDIO","alternativas":[{"letra":"A","texto":"opção A","correta":false},{"letra":"B","texto":"opção B","correta":true},{"letra":"C","texto":"opção C","correta":false},{"letra":"D","texto":"opção D","correta":false}],"explicacao":"explicação com base legal"}]`;
+RESPONDA SOMENTE com JSON válido neste formato exato:
+{"questoes":[{"enunciado":"pergunta aqui","topico":"tópico específico","dificuldade":"MEDIO","alternativas":[{"letra":"A","texto":"opção A","correta":false},{"letra":"B","texto":"opção B","correta":true},{"letra":"C","texto":"opção C","correta":false},{"letra":"D","texto":"opção D","correta":false}],"explicacao":"explicação com base legal"}]}`;
 
   const response = await fetch(`${CONFIG.OLLAMA_URL}/api/generate`, {
     method: 'POST',
@@ -454,10 +454,7 @@ RESPONDA SOMENTE com JSON válido. Nenhum texto antes ou depois. Apenas o array 
       model: CONFIG.MODELO,
       prompt: prompt,
       stream: false,
-      options: {
-        temperature: 0.7,
-        num_predict: 4096,
-      },
+      options: { temperature: 0.7, num_predict: 4096 },
       format: 'json',
     }),
   });
